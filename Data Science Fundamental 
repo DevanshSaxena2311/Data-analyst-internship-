@@ -1,0 +1,369 @@
+
+1. Introduction and Objectives
+Data science combines programming, statistics and domain knowledge to turn raw data into decisions. This report demonstrates an understanding of the core foundations that every data science workflow relies on. It has two goals:
+Demonstrate understanding of Python basics, statistical foundations, data types and industry best practices.
+Complete assignments covering each fundamental, using working code and a small end-to-end analysis (Section 5).
+
+All code was written in Python 3 using NumPy, pandas and SciPy. The full script is included in the Appendix so every result in this report can be reproduced.
+2. Python Basics
+Python is the most widely used language in data science because of its readable syntax and its ecosystem of libraries (NumPy, pandas, SciPy, scikit-learn, Matplotlib).
+2.1 Variables and Built-in Types
+Python is dynamically typed: a variable takes the type of the value assigned to it. The four most common scalar types are int, float, str and bool.
+name = "Alice"
+age = 21
+height = 1.65
+is_student = True
+print(type(name), type(age), type(height), type(is_student))
+<class 'str'> <class 'int'> <class 'float'> <class 'bool'>
+
+2.2 Core Data Structures
+Structure
+Syntax
+Mutable / Ordered
+Typical use
+list
+[72, 85, 90]
+Yes / Yes
+Ordered collection of values
+tuple
+(3, 4)
+No / Yes
+Fixed records, coordinates
+set
+{66, 72, 85}
+Yes / No
+Unique values, membership tests
+dict
+{"name": "Alice"}
+Yes / Yes (3.7+)
+Key-value lookups, records
+
+
+scores = [72, 85, 90, 66, 85]
+unique_scores = set(scores)
+student = {"name": "Alice", "score": 85}
+print(len(scores), sorted(unique_scores), student["score"])
+5 [66, 72, 85, 90] 85
+
+2.3 Control Flow, Functions and Comprehensions
+def grade(score):
+    if score >= 90:
+        return "A"
+    elif score >= 75:
+        return "B"
+    return "C"
+ 
+def mean(values):
+    return sum(values) / len(values)
+ 
+grades = [grade(s) for s in scores]   # list comprehension
+print(grades)
+print(mean(scores))
+['C', 'B', 'A', 'C', 'B']
+79.6
+
+Functions keep code reusable and testable, and list comprehensions express a transformation in a single readable line. Loops (for, while) and conditionals (if / elif / else) complete the basic control-flow toolkit.
+2.4 NumPy and pandas Essentials
+NumPy provides fast, vectorised numerical arrays; pandas builds labelled tables (DataFrames) on top of them.
+import numpy as np
+import pandas as pd
+ 
+arr = np.array([72, 85, 90, 66, 85])
+print(arr.mean(), np.median(arr), arr.std())
+ 
+df = pd.DataFrame({
+    "name":   ["Alice", "Bob", "Cara", "Dev"],
+    "score":  [85, 72, 90, 66],
+    "passed": [True, True, True, False],
+})
+print(df[df["score"] > 70])
+print(df["score"].mean())
+79.6 85.0 9.046546302318914
+    name  score  passed
+0  Alice     85    True
+1    Bob     72    True
+2   Cara     90    True
+78.25
+
+Note that arr.std() computes the population standard deviation (ddof=0). For a sample, use arr.std(ddof=1), which gives 10.11 for the same data.
+3. Data Types in Data Science
+Choosing the right analysis depends on the type of each variable. Data is first split into quantitative and qualitative kinds, then refined by measurement scale.
+3.1 Classification of Data
+Type
+Description
+Examples
+pandas dtype
+Numerical - discrete
+Countable whole numbers
+Number of children, items sold
+int64
+Numerical - continuous
+Any value in a range
+Height, temperature, score
+float64
+Categorical - nominal
+Categories with no order
+City, colour, group A/B
+category / object
+Categorical - ordinal
+Categories with a meaningful order
+Low / Medium / High
+ordered category
+Boolean
+True / False
+Passed, is_active
+bool
+Date / time
+Timestamps and durations
+Order date, log time
+datetime64
+Text (unstructured)
+Free-form language
+Reviews, emails
+object / string
+
+
+3.2 Levels of Measurement
+Scale
+Properties
+Valid statistics
+Nominal
+Labels only, no order
+Mode, counts, chi-square test
+Ordinal
+Ordered, gaps not equal
+Median, percentiles, rank correlation
+Interval
+Equal gaps, no true zero (e.g. Celsius)
+Mean, standard deviation, correlation
+Ratio
+Equal gaps and a true zero (e.g. height, income)
+All of the above plus ratios
+
+
+3.3 Structured vs. Unstructured Data
+Structured: rows and columns with a fixed schema (SQL tables, CSV files).
+Semi-structured: flexible but tagged (JSON, XML).
+Unstructured: no predefined schema (text, images, audio, video).
+
+Setting correct dtypes in pandas saves memory, prevents wrong calculations (for example averaging a numeric code that is really a category) and makes ordering explicit:
+df["group"] = df["group"].astype("category")
+df["grade_level"] = pd.Categorical(
+    df["grade_level"], categories=["Low", "Medium", "High"], ordered=True)
+
+4. Statistical Foundations
+4.1 Descriptive Statistics
+Measure
+Definition
+Notes
+Mean
+Sum of values divided by count
+Sensitive to outliers
+Median
+Middle value when sorted
+Robust to outliers
+Mode
+Most frequent value
+Works for categorical data
+Variance
+Average squared deviation from the mean
+Sample uses n - 1 in the denominator
+Standard deviation
+Square root of the variance
+Same units as the data
+IQR
+Q3 - Q1
+Spread of the middle 50%; used for outliers
+Skewness / kurtosis
+Asymmetry / tail weight
+Describe distribution shape
+
+
+4.2 Probability and Distributions
+Normal distribution: symmetric bell curve defined by mean and standard deviation; about 68%, 95% and 99.7% of values lie within 1, 2 and 3 standard deviations.
+Binomial: number of successes in n independent yes/no trials.
+Poisson: count of events in a fixed interval (e.g. calls per hour).
+Central Limit Theorem: the distribution of sample means approaches normal as sample size grows, whatever the underlying distribution. This underpins confidence intervals and most hypothesis tests.
+
+4.3 Inferential Statistics
+Population vs. sample: we usually observe a sample and infer something about the population.
+Confidence interval: a range that would contain the true parameter in a stated percentage (e.g. 95%) of repeated samples.
+Hypothesis test: the null hypothesis (H0) assumes no effect. The p-value is the probability of seeing data at least as extreme as observed if H0 is true. If p < alpha (commonly 0.05) we reject H0.
+Type I / Type II errors: rejecting a true H0 (false positive) / failing to reject a false H0 (false negative).
+
+4.4 Correlation and Regression
+Pearson correlation r (from -1 to +1) measures the strength of a linear relationship. Simple linear regression fits y = b0 + b1x, and R-squared reports the share of variance in y explained by x. Correlation does not imply causation.
+5. Practical Assignment: Student Performance Analysis
+To apply the fundamentals end to end, a reproducible synthetic dataset of 200 students was generated (random seed 42) with these columns: study_hours, attendance_pct, group (A/B), grade_level (Low/Medium/High) and score. Ten attendance values were removed and one duplicate row was added to practise data cleaning. The full code is in the Appendix.
+5.1 Data Inspection and Cleaning
+Check
+Finding and action
+Shape (raw)
+201 rows x 6 columns
+Missing values
+10 missing in attendance_pct; filled with the median (robust to outliers)
+Duplicates
+1 duplicate row found and dropped, leaving 200 rows
+Type fixes
+group converted to category; grade_level converted to ordered category
+
+
+5.2 Descriptive Statistics
+Statistic
+study_hours
+attendance_pct
+score
+Mean
+5.92
+80.30
+81.56
+Std. deviation
+1.86
+8.96
+10.51
+Minimum
+0.80
+47.60
+52.90
+25th percentile
+4.60
+74.00
+74.70
+Median
+6.00
+80.65
+82.70
+75th percentile
+7.00
+86.30
+89.12
+Maximum
+11.40
+100.00
+100.00
+
+
+The score distribution is close to symmetric (skewness = -0.28, excess kurtosis = -0.48), with an IQR of about 14.4 points. The mean (81.56) and median (82.70) are near each other, indicating no strong outlier effect.
+5.3 Correlation and Regression
+Pair
+Pearson r
+p-value
+R-squared
+study_hours vs. score
+0.807
+< 0.001
+0.651
+attendance_pct vs. score
+0.268
+-
+-
+study_hours vs. attendance_pct
+0.078
+-
+-
+
+
+Study hours show a strong positive linear relationship with score. The regression equation is score = 54.53 + 4.57 x study_hours: each additional hour of study is associated with roughly 4.6 more points, and study hours alone explain about 65% of the variance in score. Attendance has a weaker positive relationship, and the two predictors are almost uncorrelated with each other (r = 0.078), so there is no multicollinearity concern.
+5.4 Hypothesis Test: Group A vs. Group B
+H0: the mean score of groups A and B is equal.  H1: the means differ.
+Method: Welch two-sample t-test (does not assume equal variances), alpha = 0.05.
+Result: mean A = 82.05, mean B = 81.02, t = 0.682, p = 0.496.
+Conclusion: p > 0.05, so we fail to reject H0. There is no statistically significant difference between the groups.
+
+5.5 Confidence Interval
+The 95% confidence interval for the mean score is [80.10, 83.03]. We can be 95% confident, in the repeated-sampling sense, that the true population mean lies in this range.
+5.6 Score by Grade Level
+Grade level
+Students
+Mean score
+Low
+41
+80.30
+Medium
+101
+82.01
+High
+58
+81.67
+
+
+Mean scores are similar across grade levels; the ordered category allows correct sorting and grouping.
+6. Industry Best Practices
+6.1 Follow a Structured Workflow
+Industry teams commonly follow CRISP-DM: (1) business understanding, (2) data understanding, (3) data preparation, (4) modelling, (5) evaluation, (6) deployment. The process is iterative, and most of the time is spent on steps 2 and 3.
+6.2 Data Quality and Preparation
+Profile the data first: shape, dtypes, missing values, duplicates, ranges and outliers.
+Handle missing data deliberately (drop, impute with mean/median/mode, or model it) and document the choice.
+Validate assumptions with checks or asserts, not by eye.
+Keep raw data immutable; do all cleaning in code so it can be re-run.
+6.3 Reproducibility and Code Quality
+Set random seeds and pin library versions (requirements.txt or environment.yml).
+Use version control (Git/GitHub) with clear commit messages.
+Write small functions, follow PEP 8, use meaningful names and add docstrings.
+Use notebooks for exploration, and move reusable logic into scripts or modules with tests.
+6.4 Sound Analysis and Modelling
+Split data into train / validation / test sets before modelling to avoid data leakage.
+Start with a simple baseline model, then increase complexity only if it helps.
+Pick metrics that match the problem (e.g. precision/recall for imbalanced classes rather than accuracy).
+Visualise data with clear titles, labelled axes and units; do not use misleading scales.
+Report uncertainty (confidence intervals, p-values with effect sizes) rather than a single number.
+6.5 Ethics, Privacy and Communication
+Protect personal data (anonymise, minimise, follow regulations such as GDPR and India's DPDP Act).
+Check for bias in data and models, and consider fairness across groups.
+Communicate findings in plain language for the audience, with clear limitations and next steps.
+Document assumptions, data sources and decisions so others can review the work.
+7. Conclusion
+This report covered the four foundations of data science: Python programming basics, data types and measurement scales, statistical foundations, and industry best practices. The practical assignment combined them in one workflow: cleaning a dataset, describing it, measuring relationships, testing a hypothesis and quantifying uncertainty. The key findings were that study hours strongly predict score (r = 0.81, R-squared = 0.65) while the two groups do not differ significantly (p = 0.50). Together these fundamentals form the base for more advanced work such as machine learning, data engineering and deployment.
+References
+Python Software Foundation. Python 3 Documentation. docs.python.org
+pandas development team. pandas Documentation. pandas.pydata.org
+NumPy and SciPy Documentation. numpy.org, scipy.org
+Chapman, P. et al. (2000). CRISP-DM 1.0: Step-by-step data mining guide.
+
+Appendix: Complete Analysis Code
+Run with Python 3, NumPy, pandas and SciPy installed. The random seed makes the results reproducible.
+import numpy as np
+import pandas as pd
+from scipy import stats
+ 
+np.random.seed(42)
+n = 200
+df = pd.DataFrame({
+    "student_id": range(1, n + 1),
+    "study_hours": np.round(np.random.normal(6, 2, n).clip(0.5, 12), 1),
+    "attendance_pct": np.round(np.random.normal(80, 10, n).clip(40, 100), 1),
+    "group": np.random.choice(["A", "B"], n),
+    "grade_level": np.random.choice(["Low", "Medium", "High"], n, p=[.2, .5, .3]),
+})
+df["score"] = np.round(35 + 4.5 * df["study_hours"] + 0.25 * df["attendance_pct"]
+                       + np.random.normal(0, 6, n), 1).clip(0, 100)
+# inject missing values and a duplicate
+df.loc[np.random.choice(n, 10, replace=False), "attendance_pct"] = np.nan
+df = pd.concat([df, df.iloc[[5]]], ignore_index=True)
+ 
+print("SHAPE", df.shape)
+print("DTYPES"); print(df.dtypes)
+print("MISSING"); print(df.isna().sum())
+print("DUPES", df.duplicated().sum())
+ 
+df = df.drop_duplicates()
+df["attendance_pct"] = df["attendance_pct"].fillna(df["attendance_pct"].median())
+df["group"] = df["group"].astype("category")
+df["grade_level"] = pd.Categorical(df["grade_level"], categories=["Low","Medium","High"], ordered=True)
+ 
+print("DESCRIBE"); print(df[["study_hours","attendance_pct","score"]].describe().round(2))
+print("MODE group", df["group"].mode()[0])
+print("SKEW", df["score"].skew().round(3), "KURT", df["score"].kurt().round(3))
+print("CORR"); print(df[["study_hours","attendance_pct","score"]].corr().round(3))
+ 
+a = df[df.group=="A"]["score"]; b = df[df.group=="B"]["score"]
+t, p = stats.ttest_ind(a, b, equal_var=False)
+print("MEANS", a.mean().round(2), b.mean().round(2), "t", round(t,3), "p", round(p,4))
+ci = stats.t.interval(0.95, len(df)-1, loc=df["score"].mean(), scale=stats.sem(df["score"]))
+print("CI", np.round(ci,2))
+r, pr = stats.pearsonr(df["study_hours"], df["score"])
+print("PEARSON", round(r,3), pr)
+slope, intercept, rv, pv, se = stats.linregress(df["study_hours"], df["score"])
+print("LINREG", round(slope,3), round(intercept,3), round(rv**2,3))
+print(df.groupby("grade_level", observed=True)["score"].agg(["count","mean"]).round(2))
+q1,q3 = df["score"].quantile([.25,.75]); print("IQR", q1,q3, q3-q1)
